@@ -1,9 +1,11 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-public class door : MonoBehaviour
+public class Door : MonoBehaviour
 {
     public Transform target;
     public GameObject prompt;
+    public DialogueBox dialogueBox;
+    public int needKey = 0;
+    public Talk lockedTalk;
     private Transform player;
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -11,6 +13,7 @@ public class door : MonoBehaviour
         {
             player = other.transform;
             prompt.SetActive(true);
+            dialogueBox.nearDoor = this;
         }
     }
 
@@ -18,17 +21,19 @@ public class door : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-            player = null;
             prompt.SetActive(false);
+            dialogueBox.nearDoor = null;
         }
     }
 
     // Update is called once per frame
-    void Update()
+    public void Use()
     {
-        if (player != null&&Keyboard.current.eKey.wasPressedThisFrame)
+        Inventory inventory = player.GetComponent<Inventory>();
+        if (inventory.keys >= needKey)
         {
             player.position = target.position;
         }
+        else {lockedTalk.Say();}
     }
 }
